@@ -1,4 +1,4 @@
-twip-python
+Flask-Twip
 ===========
 
-twitter API proxy in Python
+A twitter API proxy extension for Flask microframework.
