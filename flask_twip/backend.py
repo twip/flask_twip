@@ -5,11 +5,12 @@ from __future__ import unicode_literals,\
     absolute_import, division, print_function
 
 import os
+import glob
 
 class Backend(object):
-    def save(self, key, string, force=False):
+    def save(self, user, key, string):
         raise NotImplementedError('You should use subclass of Backend')
-    def load(self, key):
+    def load(self, user, key):
         raise NotImplementedError('You should use subclass of Backend')
 
 
@@ -18,16 +19,14 @@ class FileBackend(Backend):
     def __init__(self, folder=None):
         self.folder = folder
 
-    def save(self, key, string, force=False):
-        file = '%s/%s' % (self.folder, key)
+    def save(self, user, key, string):
+        for f in glob.glob('%s/%s.*' % (self.folder, user)):
+            os.remove(f)
 
-        if not force and os.path.isfile(file):
-            raise TypeError('File %s exists. Overwrite with force option')
-
-        with open(file, 'w') as f:
+        with open('%s/%s.%s' % (self.folder, user, key), 'w') as f:
             f.write(string)
 
-    def load(self, key):
-        file = '%s/%s' % (self.folder, key)
+    def load(self, user, key):
+        file = '%s/%s.%s' % (self.folder, user, key)
         with open(file, 'r') as f:
             return f.read()
