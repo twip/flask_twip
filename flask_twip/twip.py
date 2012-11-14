@@ -37,7 +37,7 @@ class Twip(object):
         return path
 
     def redirect(self):
-        return redirect(url_for('index'))
+        return redirect(url_for('twip.index'))
 
     def index(self):
         return 'index'
