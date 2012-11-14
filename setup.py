@@ -31,6 +31,7 @@ setup(
     install_requires=[
         'Flask >= 0.9',
         'requests >= 0.14.2',
+        'Flask-OAuth >= 0.12',
     ],
     classifiers=[
         'Environment :: Web Environment',
