@@ -29,8 +29,8 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=[
-        'Flask',
-        'requests',
+        'Flask >= 0.9',
+        'requests >= 0.14.2',
     ],
     classifiers=[
         'Environment :: Web Environment',
