@@ -6,12 +6,13 @@ from __future__ import unicode_literals,\
 
 import requests
 from flask import request as req
-from flask import redirect
+from flask import redirect, url_for, Blueprint
 
 class Twip(object):
 
-    def __init__(self, app=None, url='twip'):
+    def __init__(self, app=None, url='/twip'):
         self.url = url
+        self.bp = Blueprint('twip', __name__, url_prefix=self.url)
         if app is not None:
             self.app = app
             self.init_app(self.app)
@@ -21,11 +22,13 @@ class Twip(object):
     def init_app(self, app):
         self.app = app
 
-        self.app.add_url_rule('/%s/o/<path:path>' % (self.url,), view_func=self.OMode)
-        self.app.add_url_rule('/%s/t/<path:path>' % (self.url,), view_func=self.TMode)
-        self.app.add_url_rule('/%s/o/' % (self.url,), view_func=self.redirect)
-        self.app.add_url_rule('/%s/t/' % (self.url,), view_func=self.redirect)
-        self.app.add_url_rule('/%s/' % (self.url,), view_func=self.index)
+        self.bp.add_url_rule('/o/<path:path>', view_func=self.OMode)
+        self.bp.add_url_rule('/t/<path:path>', view_func=self.TMode)
+        self.bp.add_url_rule('/o/', view_func=self.redirect)
+        self.bp.add_url_rule('/t/', view_func=self.redirect)
+        self.bp.add_url_rule('/', view_func=self.index)
+
+        self.app.register_blueprint(self.bp)
 
     def OMode(self, path):
         return path
