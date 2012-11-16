@@ -7,6 +7,14 @@ from __future__ import unicode_literals,\
 import os
 import glob
 
+from .exception import TwipError
+
+class TokenLoadingError(TwipError):
+    pass
+
+class TokenSavingError(TwipError):
+    pass
+
 class Backend(object):
     def save(self, user, key, string):
         raise NotImplementedError('You should use subclass of Backend')
@@ -22,13 +30,19 @@ class FileBackend(Backend):
             os.mkdir(self.folder)
 
     def save(self, user, key, string):
-        for f in glob.glob('%s/%s.*' % (self.folder, user)):
-            os.remove(f)
+        try:
+            for f in glob.glob('%s/%s.*' % (self.folder, user)):
+                os.remove(f)
 
-        with open('%s/%s.%s' % (self.folder, user, key), 'w') as f:
-            f.write(string)
+            with open('%s/%s.%s' % (self.folder, user, key), 'w') as f:
+                f.write(string)
+        except Exception as e:
+            raise TokenSavingError(str(e))
 
     def load(self, user, key):
-        file = '%s/%s.%s' % (self.folder, user, key)
-        with open(file, 'r') as f:
-            return f.read()
+        try:
+            file = '%s/%s.%s' % (self.folder, user, key)
+            with open(file, 'r') as f:
+                return f.read()
+        except Exception as e:
+            raise TokenLoadingError(str(e))
