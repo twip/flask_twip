@@ -9,15 +9,19 @@ import glob
 
 from .exception import TwipError
 
+
 class TokenLoadingError(TwipError):
     pass
+
 
 class TokenSavingError(TwipError):
     pass
 
+
 class Backend(object):
     def save(self, user, key, string):
         raise NotImplementedError('You should use subclass of Backend')
+
     def load(self, user, key):
         raise NotImplementedError('You should use subclass of Backend')
 
