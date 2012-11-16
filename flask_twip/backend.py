@@ -18,6 +18,8 @@ class FileBackend(Backend):
 
     def __init__(self, folder=None):
         self.folder = folder
+        if not os.path.isdir(self.folder):
+            os.mkdir(self.folder)
 
     def save(self, user, key, string):
         for f in glob.glob('%s/%s.*' % (self.folder, user)):
