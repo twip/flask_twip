@@ -7,16 +7,24 @@ from __future__ import unicode_literals,\
 import requests
 from flask import request as req
 from flask import redirect, url_for, Blueprint,\
-    session, request, render_template
+    session, request, render_template, abort, \
+    make_response
 from flask.ext.oauth import OAuth, OAuthException
 
 import random
 import string
 import json
 import os
+import re
+
+from .backend import TokenLoadingError, TokenSavingError
+from urllib import urlencode
 
 
 class Twip(object):
+
+    version_re = re.compile(r'^[0-9]+(?:\.[0-9]+)?$')
+    default_version = 1.1
 
     def __init__(self, app=None, url='/twip', backend=None):
         self.url = url
@@ -35,6 +43,7 @@ class Twip(object):
             self.app = None
 
         self.backend = backend
+        self.token = None
 
     @property
     def url_base(self):
@@ -52,7 +61,7 @@ class Twip(object):
         try:
             return self._o_base
         except AttributeError:
-            self._o_base = '%s%s/' % (
+            self._o_base = '%s%s' % (
                 self.url_base,
                 os.path.dirname(self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule)
             )
@@ -63,7 +72,7 @@ class Twip(object):
         try:
             return self._t_base
         except AttributeError:
-            self._t_base = '%s%s/' % (
+            self._t_base = '%s%s' % (
                 self.url_base,
                 os.path.dirname(self.app.url_map._rules_by_endpoint['twip.TMode'][0].rule)
             )
@@ -74,7 +83,7 @@ class Twip(object):
         try:
             return self._full_base
         except AttributeError:
-            self._full_base = '%s%s/' % (
+            self._full_base = '%s%s' % (
                 self.url_base,
                 self.url
             )
@@ -100,31 +109,93 @@ class Twip(object):
             self.bp.add_url_rule(url, view_func=func)
 
         self.app.register_blueprint(self.bp)
-        oauth = OAuth()
 
-        self.twitter = oauth.remote_app(
+
+    def oauth_app(self, base_url='https://api.twitter.com/1.1/'):
+        oauth = OAuth()
+        twitter = oauth.remote_app(
             'twitter',
-            base_url='https://api.twitter.com/1/',
+            base_url='',
             request_token_url='https://api.twitter.com/oauth/request_token',
             access_token_url='https://api.twitter.com/oauth/access_token',
             authorize_url='https://api.twitter.com/oauth/authenticate',
             consumer_key=self.app.config.get('TWITTER_CONSUMER_KEY'),
             consumer_secret=self.app.config.get('TWITTER_CONSUMER_SECRET'),
         )
-        self.twitter.tokengetter(self.tokengetter)
+        twitter.tokengetter(self.tokengetter)
+        return twitter
 
     def tokengetter(self):
-        return None
-        #return (
-        #    self.app.config.get('TWITTER_CONSUMER_SECRET'),
-        #    self.app.config.get('TWITTER_CONSUMER_KEY'),
-        #)
+        if self.token:
+            return (self.token['oauth_token'], self.token['oauth_token_secret'])
+        else:
+            return None
 
     def OMode(self, path):
-        return path
+        username, key = path.split('/')[:2]
+        try:
+            token = self.backend.load(username, key)
+            self.token = json.loads(token)
+        except TokenLoadingError as e:
+            abort(401)
+
+        remote_url = '/'.join(path.split('/')[2:])
+
+        if remote_url == 'oauth/access_token':
+            return urlencode(self.token)
+        else:
+            remote_url = self.url_fixer(remote_url)
+            values = self.args_fixer(request.values)
+
+            twitter = self.oauth_app()
+
+            if request.method == 'POST':
+                r = twitter.post(remote_url, data=values)
+            elif request.method == 'GET':
+                r = twitter.get(remote_url, data=values)
+
+            return make_response((r.raw_data, r.status, r.headers))
+
+    OMode.methods = ['GET', 'POST']
+
 
     def TMode(self, path):
         return path
+
+    def url_fixer(self, url):
+        # determine if there's any version info
+        first_part = url.split('/')[0]
+        if first_part.startswith('search.'):
+            url = 'http://search.twitter.com/%s' % (url,)
+        elif not self.version_re.match(first_part) \
+           and first_part not in ('i', 'oauth'):
+            # no version info
+            # not unversioned API request
+            # we need prepend the url with default version
+            url = 'https://api.twitter.com/%s/%s' % (self.default_version, url)
+        else:
+            url = 'https://api.twitter.com/%s' % (url,)
+
+        for key, replacement in self.url_replacements():
+            url.replace(key, replacement)
+
+
+        return url
+
+    def url_replacements(self):
+        return (
+            ('i/search.json', 'search.json'),
+        )
+
+    def args_fixer(self, args):
+        ret = dict()
+        for key in args:
+            if key in ('pc', 'earned'):
+                ret[key] = False
+            else:
+                ret[key] = args[key]
+
+        return ret
 
     def redirect(self):
         return redirect(url_for('twip.index'))
@@ -133,25 +204,27 @@ class Twip(object):
         return render_template('base.jinja', base=self.full_base)
 
     def oauth_start(self):
-        return self.twitter.authorize(callback=url_for('twip.oauth_callback'))
+        twitter = self.oauth_app()
+        return twitter.authorize(callback=url_for('twip.oauth_callback'))
 
     def oauth_callback(self):
+        twitter = self.oauth_app()
         try:
             if 'oauth_verifier' in request.args:
-                data = self.twitter.handle_oauth1_response()
+                data = twitter.handle_oauth1_response()
             elif 'code' in request.args:
-                data = self.twitter.handle_oauth2_response()
+                data = twitter.handle_oauth2_response()
             else:
-                data = self.twitter.handle_unknown_response()
+                data = twitter.handle_unknown_response()
         except OAuthException as e:
             return redirect(url_for('twip.index'))
-        self.twitter.free_request_token()
+        twitter.free_request_token()
 
         key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(5))
 
         self.backend.save(data['screen_name'], key, json.dumps(data))
 
-        url = '%s/%s.%s/' % (
+        url = '%s/%s/%s/' % (
             self.o_base,
             data['screen_name'],
             key
@@ -160,5 +233,5 @@ class Twip(object):
         return redirect(url_for('twip.show_api')+'?api=%s' % (url,))
 
     def show_api(self):
-        api = request.args.get('api', self.t_base)
+        api = request.args.get('api', self.t_base+'/')
         return render_template('show_api.jinja', api=api, base=self.full_base)
