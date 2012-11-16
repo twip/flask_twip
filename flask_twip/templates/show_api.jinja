@@ -1,0 +1,14 @@
+{% extends "base.jinja" %}
+
+{% block content %}
+<h3>你的 API Proxy 地址</h3>
+<p>
+<input readonly="readonly" type="text" value="{{ api }}" onmouseover="this.focus()" onfocus="this.select()" autocomplete="off" />
+</p>
+<p>
+友情提醒：请不要随意泄漏你的 API 地址。Twip 默认会保护你的 API 地址不被搜索引擎爬取。
+</p>
+<p class="clearfix">
+<a class="button" href="{{ url_for('twip.index') }}">返回首页</a>
+</p>
+{% endblock %}
