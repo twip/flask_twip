@@ -7,7 +7,7 @@ from __future__ import unicode_literals,\
 import requests
 from flask import request as req
 from flask import redirect, url_for, Blueprint,\
-    session, request
+    session, request, render_template
 from flask.ext.oauth import OAuth, OAuthException
 
 import random
@@ -20,7 +20,14 @@ class Twip(object):
 
     def __init__(self, app=None, url='/twip', backend=None):
         self.url = url
-        self.bp = Blueprint('twip', __name__, url_prefix=self.url)
+        self.bp = Blueprint(
+            'twip',
+            __name__,
+            url_prefix=self.url,
+            template_folder='templates',
+            static_folder='static',
+        )
+
         if app is not None:
             self.app = app
             self.init_app(self.app)
@@ -28,6 +35,50 @@ class Twip(object):
             self.app = None
 
         self.backend = backend
+
+    @property
+    def url_base(self):
+        try:
+            return self._url_base
+        except AttributeError:
+            self._url_base = '%s://%s' % (
+                request.environ['wsgi.url_scheme'],
+                request.environ['HTTP_HOST'],
+            )
+            return self._url_base
+
+    @property
+    def o_base(self):
+        try:
+            return self._o_base
+        except AttributeError:
+            self._o_base = '%s%s/' % (
+                self.url_base,
+                os.path.dirname(self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule)
+            )
+            return self._o_base
+
+    @property
+    def t_base(self):
+        try:
+            return self._t_base
+        except AttributeError:
+            self._t_base = '%s%s/' % (
+                self.url_base,
+                os.path.dirname(self.app.url_map._rules_by_endpoint['twip.TMode'][0].rule)
+            )
+            return self._t_base
+
+    @property
+    def full_base(self):
+        try:
+            return self._full_base
+        except AttributeError:
+            self._full_base = '%s%s/' % (
+                self.url_base,
+                self.url
+            )
+            return self._full_base
 
     def getMapper(self):
         m = (
@@ -79,7 +130,7 @@ class Twip(object):
         return redirect(url_for('twip.index'))
 
     def index(self):
-        return 'index'
+        return render_template('base.jinja', base=self.full_base)
 
     def oauth_start(self):
         return self.twitter.authorize(callback=url_for('twip.oauth_callback'))
@@ -99,12 +150,9 @@ class Twip(object):
         key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(5))
 
         self.backend.save(data['screen_name'], key, json.dumps(data))
-        prefix = os.path.dirname(self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule)
 
-        url = '%s://%s%s/%s.%s' % (
-            request.environ['wsgi.url_scheme'],
-            request.environ['HTTP_HOST'],
-            prefix,
+        url = '%s/%s.%s/' % (
+            self.o_base,
             data['screen_name'],
             key
         )
@@ -112,4 +160,5 @@ class Twip(object):
         return redirect(url_for('twip.show_api')+'?api=%s' % (url,))
 
     def show_api(self):
-        return request.args['api']
+        api = request.args.get('api', self.t_base)
+        return render_template('show_api.jinja', api=api, base=self.full_base)
