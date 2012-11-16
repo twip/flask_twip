@@ -36,7 +36,7 @@ setup(
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MPL 1.0',
+        'License :: OSI Approved :: Mozilla Public License 1.1 (MPL 1.1)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
