@@ -63,7 +63,10 @@ class Twip(object):
         except AttributeError:
             self._o_base = '%s%s' % (
                 self.url_base,
-                os.path.dirname(self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule)
+                os.path.dirname(
+                    # FIXME: I'm not sure the best way to extract this info
+                    self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule
+                )
             )
             return self._o_base
 
@@ -74,7 +77,10 @@ class Twip(object):
         except AttributeError:
             self._t_base = '%s%s' % (
                 self.url_base,
-                os.path.dirname(self.app.url_map._rules_by_endpoint['twip.TMode'][0].rule)
+                os.path.dirname(
+                    # FIXME:
+                    self.app.url_map._rules_by_endpoint['twip.TMode'][0].rule
+                )
             )
             return self._t_base
 
@@ -110,7 +116,6 @@ class Twip(object):
 
         self.app.register_blueprint(self.bp)
 
-
     def oauth_app(self, base_url='https://api.twitter.com/1.1/'):
         oauth = OAuth()
         twitter = oauth.remote_app(
@@ -127,7 +132,10 @@ class Twip(object):
 
     def tokengetter(self):
         if self.token:
-            return (self.token['oauth_token'], self.token['oauth_token_secret'])
+            return (
+                self.token['oauth_token'],
+                self.token['oauth_token_secret']
+            )
         else:
             return None
 
@@ -158,7 +166,6 @@ class Twip(object):
 
     OMode.methods = ['GET', 'POST']
 
-
     def TMode(self, path):
         return path
 
@@ -168,7 +175,7 @@ class Twip(object):
         if first_part.startswith('search.'):
             url = 'http://search.twitter.com/%s' % (url,)
         elif not self.version_re.match(first_part) \
-           and first_part not in ('i', 'oauth'):
+                and first_part not in ('i', 'oauth'):
             # no version info
             # not unversioned API request
             # we need prepend the url with default version
@@ -178,7 +185,6 @@ class Twip(object):
 
         for key, replacement in self.url_replacements():
             url.replace(key, replacement)
-
 
         return url
 
@@ -220,7 +226,10 @@ class Twip(object):
             return redirect(url_for('twip.index'))
         twitter.free_request_token()
 
-        key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(5))
+        key = ''.join(
+            random.choice(string.ascii_lowercase + string.digits)
+            for x in range(5)
+        )
 
         self.backend.save(data['screen_name'], key, json.dumps(data))
 
@@ -230,8 +239,8 @@ class Twip(object):
             key
         )
 
-        return redirect(url_for('twip.show_api')+'?api=%s' % (url,))
+        return redirect(url_for('twip.show_api') + '?api=%s' % (url,))
 
     def show_api(self):
-        api = request.args.get('api', self.t_base+'/')
+        api = request.args.get('api', self.t_base + '/')
         return render_template('show_api.jinja', api=api, base=self.full_base)
