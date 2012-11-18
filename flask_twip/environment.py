@@ -21,7 +21,7 @@ class CGIEnvironment(Environment):
         pathInfo = environ.get('PATH_INFO')
         scriptURL = environ.get('SCRIPT_URL')
         if scriptURL.endswith(pathInfo):
-            environ['twip_base_url'] = '%s://%s%s' % (environ['twip_scheme'], self['HTTP_HOST'], scriptURL[:-len(pathInfo)])
+            environ['twip_base_url'] = '%s://%s%s' % (environ['twip_scheme'], environ['HTTP_HOST'], scriptURL[:-len(pathInfo)])
         else:
             environ['twip_base_url'] = '%s://%s' % (environ['twip_scheme'], self['HTTP_HOST'])
 
