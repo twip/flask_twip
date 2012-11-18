@@ -13,11 +13,16 @@ class Environment(object):
     def getHostname(self):
         raise NotImplementedError('You should use subclass of Environment')
 
+    def getBaseURL(self):
+        raise NotImplementedError('You should use subclass of Environment')
+
     def __getitem__(self, name):
-        if name == 'url_scheme':
+        if name == 'scheme':
             return 'https' if self.isHTTPS() else 'http'
-        if name == 'hostname':
+        elif name == 'hostname':
             return self.getHostname()
+        elif name == 'base_url':
+            return self.getBaseURL()
 
 class CGIEnvironment(Environment):
     def isHTTPS(self):
@@ -25,6 +30,14 @@ class CGIEnvironment(Environment):
 
     def getHostname(self):
         return request.environ.get('HTTP_HOST')
+
+    def getBaseURL(self):
+        pathInfo = request.environ.get('PATH_INFO')
+        scriptURL = request.environ.get('SCRIPT_URL')
+        if scriptURL.endswith(pathInfo):
+            return '%s://%s/%s' % (self['scheme'], self['hostname'], scriptURL[:-len(pathInfo)])
+        else:
+            return None
 
 class HerokuEnvironment(Environment):
     def isHTTPS(self):
@@ -39,3 +52,6 @@ class DevEnvironment(Environment):
 
     def getHostname(self):
         return request.environ.get('HTTP_HOST')
+
+    def getBaseURL(self):
+        return '%s://%s' % (self['scheme'], self['hostname'])

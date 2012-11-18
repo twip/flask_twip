@@ -53,23 +53,12 @@ class Twip(object):
         self.environment = environment
 
     @property
-    def url_base(self):
-        try:
-            return self._url_base
-        except AttributeError:
-            self._url_base = '%s://%s' % (
-                self.environment['url_scheme'],
-                request.environ['HTTP_HOST'],
-            )
-            return self._url_base
-
-    @property
     def o_base(self):
         try:
             return self._o_base
         except AttributeError:
             self._o_base = '%s%s' % (
-                self.url_base,
+                self.environment['base_url'],
                 os.path.dirname(
                     # FIXME: I'm not sure the best way to extract this info
                     self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule
@@ -83,24 +72,13 @@ class Twip(object):
             return self._t_base
         except AttributeError:
             self._t_base = '%s%s' % (
-                self.url_base,
+                self.environment['base_url'],
                 os.path.dirname(
                     # FIXME:
                     self.app.url_map._rules_by_endpoint['twip.TMode'][0].rule
                 )
             )
             return self._t_base
-
-    @property
-    def full_base(self):
-        try:
-            return self._full_base
-        except AttributeError:
-            self._full_base = '%s%s' % (
-                self.url_base,
-                self.url
-            )
-            return self._full_base
 
     def getMapper(self):
         m = (
@@ -214,7 +192,7 @@ class Twip(object):
         return redirect(url_for('twip.index'))
 
     def index(self):
-        return render_template('base.jinja', base=self.full_base)
+        return render_template('base.jinja')
 
     def oauth_start(self):
         twitter = self.oauth_app()
@@ -250,4 +228,4 @@ class Twip(object):
 
     def show_api(self):
         api = request.args.get('api', self.t_base + '/')
-        return render_template('show_api.jinja', api=api, base=self.full_base)
+        return render_template('show_api.jinja', api=api)
