@@ -26,7 +26,13 @@ class Twip(object):
     version_re = re.compile(r'^[0-9]+(?:\.[0-9]+)?$')
     default_version = 1.1
 
-    def __init__(self, app=None, url='/twip', backend=None):
+    def __init__(
+        self,
+        app=None,
+        url='/twip',
+        backend=None,
+        environment=None
+    ):
         self.url = os.path.normpath(url)
         self.bp = Blueprint(
             'twip',
@@ -44,6 +50,7 @@ class Twip(object):
 
         self.backend = backend
         self.token = None
+        self.environment = environment
 
     @property
     def url_base(self):
