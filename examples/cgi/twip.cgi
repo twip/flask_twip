@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+# Use your virtualenv python as the shebang
+
 try:
     from wsgiref.handlers import CGIHandler
-    from flask import Flask
-    from flask_twip import Twip
-    from flask_twip.backend import FileBackend
-    from flask import request
-    from flask_twip.environment import CGIEnvironment
+    from flask import Flask, request
+    from flask.ext.twip import Twip
+    from flask.ext.twip.backend import FileBackend
+    from flask.ext.twip.environment import CGIEnvironment
     import sys
     import os
     import logging
