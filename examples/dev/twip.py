@@ -7,14 +7,13 @@ from __future__ import unicode_literals,\
 from flask import Flask
 from flask.ext.twip import Twip
 from flask.ext.twip.backend import FileBackend
-from flask.ext.twip.environment import DevEnvironment
+from flask.ext.twip.environment import WSGIEnvironment
 
 if __name__ == '__main__':
     app = Flask(__name__)
     app.config.from_object('settings')
     be = FileBackend(folder='/tmp/twip')
-    e = DevEnvironment()
-    twip = Twip(app, backend=be, environment=e)
+    twip = Twip(app, backend=be, environment=WSGIEnvironment)
     app.run(
         debug=True,
     )

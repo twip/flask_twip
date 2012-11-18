@@ -21,8 +21,7 @@ if __name__ == '__main__':
         app = Flask(__name__, static_folder=None)
         app.config.from_object('settings')
         be = FileBackend(folder='/home/yegle/cgi-bin/tokens')
-        e = CGIEnvironment()
-        twip = Twip(app, backend=be, url='/', environment=e)
+        twip = Twip(app, backend=be, url='/', environment=CGIEnvironment)
 
         CGIHandler().run(app)
     except Exception as e:
