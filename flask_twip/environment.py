@@ -35,7 +35,7 @@ class CGIEnvironment(Environment):
         pathInfo = request.environ.get('PATH_INFO')
         scriptURL = request.environ.get('SCRIPT_URL')
         if scriptURL.endswith(pathInfo):
-            return '%s://%s/%s' % (self['scheme'], self['hostname'], scriptURL[:-len(pathInfo)])
+            return '%s://%s%s' % (self['scheme'], self['hostname'], scriptURL[:-len(pathInfo)])
         else:
             return None
 
