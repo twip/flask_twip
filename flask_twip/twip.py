@@ -45,12 +45,12 @@ class Twip(object):
         if app is not None:
             self.app = app
             self.init_app(self.app)
+            self.app.wsgi_app = environment(self.app.wsgi_app)
         else:
             self.app = None
 
         self.backend = backend
         self.token = None
-        self.environment = environment
 
     @property
     def o_base(self):
@@ -58,7 +58,7 @@ class Twip(object):
             return self._o_base
         except AttributeError:
             self._o_base = '%s%s' % (
-                self.environment['base_url'],
+                request.environ['twip_base_url'],
                 os.path.dirname(
                     # FIXME: I'm not sure the best way to extract this info
                     self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule
@@ -72,7 +72,7 @@ class Twip(object):
             return self._t_base
         except AttributeError:
             self._t_base = '%s%s' % (
-                self.environment['base_url'],
+                request.environ['twip_base_url'],
                 os.path.dirname(
                     # FIXME:
                     self.app.url_map._rules_by_endpoint['twip.TMode'][0].rule

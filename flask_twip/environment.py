@@ -7,51 +7,33 @@ from __future__ import unicode_literals,\
 from flask import request
 
 class Environment(object):
-    def isHTTPS(self):
-        raise NotImplementedError('You should use subclass of Environment')
+    def __init__(self, app):
+        self.app = app
 
-    def getHostname(self):
-        raise NotImplementedError('You should use subclass of Environment')
-
-    def getBaseURL(self):
-        raise NotImplementedError('You should use subclass of Environment')
-
-    def __getitem__(self, name):
-        if name == 'scheme':
-            return 'https' if self.isHTTPS() else 'http'
-        elif name == 'hostname':
-            return self.getHostname()
-        elif name == 'base_url':
-            return self.getBaseURL()
+    def __call__(self, environ, start_response):
+        environ['twip_base_url'] = '%s://%s' % (environ['twip_scheme'], environ['HTTP_HOST'])
+        return self.app(environ, start_response)
 
 class CGIEnvironment(Environment):
-    def isHTTPS(self):
-        return ('HTTPS' in request.environ and request.environ.get('HTTPS') == 'on')
 
-    def getHostname(self):
-        return request.environ.get('HTTP_HOST')
-
-    def getBaseURL(self):
-        pathInfo = request.environ.get('PATH_INFO')
-        scriptURL = request.environ.get('SCRIPT_URL')
+    def __call__(self, environ, start_response):
+        environ['twip_scheme'] = 'https' if ('HTTPS' in environ and environ.get('HTTPS') == 'on') else 'http'
+        pathInfo = environ.get('PATH_INFO')
+        scriptURL = environ.get('SCRIPT_URL')
         if scriptURL.endswith(pathInfo):
-            return '%s://%s%s' % (self['scheme'], self['hostname'], scriptURL[:-len(pathInfo)])
+            environ['twip_base_url'] = '%s://%s%s' % (environ['twip_scheme'], self['HTTP_HOST'], scriptURL[:-len(pathInfo)])
         else:
-            return None
+            environ['twip_base_url'] = '%s://%s' % (environ['twip_scheme'], self['HTTP_HOST'])
 
-class HerokuEnvironment(Environment):
-    def isHTTPS(self):
-        return ('x-forwarded-proto' in request.headers and request.headers.get('x-forwarded-proto') == 'HTTPS')
+        return self.app(environ, start_response)
 
-    def getHostname(self):
-        return request.environ.get('HTTP_HOST')
+class WSGIEnvironment(Environment):
 
-class DevEnvironment(Environment):
-    def isHTTPS(self):
-        return ('wsgi.url_scheme' in request.environ and request.environ.get('wsgi.url_scheme') == 'https')
+    def __call__(self, environ, start_response):
+        environ['twip_scheme'] = 'https' if ('wsgi.url_scheme' in environ and environ.get('wsgi.url_scheme') == 'https') else 'http'
+        return super(WSGIEnvironment, self).__call__(environ, start_response)
 
-    def getHostname(self):
-        return request.environ.get('HTTP_HOST')
-
-    def getBaseURL(self):
-        return '%s://%s' % (self['scheme'], self['hostname'])
+class HerokuEnvironment(WSGIEnvironment):
+    def __call__(self, environ, start_response):
+        environ['wsgi.url_scheme'] = environ['HTTP_X_FORWARDED_PROTO']
+        return super(HerokuEnvironment, self).__call__(environ, start_response)
