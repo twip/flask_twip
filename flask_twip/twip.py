@@ -58,7 +58,7 @@ class Twip(object):
             return self._url_base
         except AttributeError:
             self._url_base = '%s://%s' % (
-                request.environ['wsgi.url_scheme'],
+                self.environment['url_scheme'],
                 request.environ['HTTP_HOST'],
             )
             return self._url_base
