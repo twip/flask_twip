@@ -27,11 +27,11 @@ class Twip(object):
     default_version = 1.1
 
     def __init__(self, app=None, url='/twip', backend=None):
-        self.url = url
+        self.url = os.path.normpath(url)
         self.bp = Blueprint(
             'twip',
             __name__,
-            url_prefix=self.url,
+            url_prefix=None if self.url == '/' else self.url,
             template_folder='templates',
             static_folder='static',
         )
