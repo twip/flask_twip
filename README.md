@@ -28,3 +28,9 @@ CGI is supported on most web hosting servers.
  1. Create a virtual environment using `virtualenv`
  2. Install `Flask-Twip` using `pip install Flask-Twip`
  3. Refer to <https://github.com/yegle/flask_twip/tree/master/examples/cgi>.
+
+### Run on Heroku
+
+Heroku is a widely used PaaS platform.
+
+Refer to <https://github.com/yegle/flask_twip/tree/master/examples/heroku>.
