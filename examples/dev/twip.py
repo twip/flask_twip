@@ -6,13 +6,15 @@ from __future__ import unicode_literals,\
 
 from flask import Flask
 from flask.ext.twip import Twip
-from flask.ext.twip import FileBackend
+from flask.ext.twip.backend import FileBackend
+from flask.ext.twip.environment import DevEnvironment
 
 if __name__ == '__main__':
     app = Flask(__name__)
     app.config.from_object('settings')
     be = FileBackend(folder='/tmp/twip')
-    twip = Twip(app, backend=be)
+    e = DevEnvironment()
+    twip = Twip(app, backend=be, environment=e)
     app.run(
         debug=True,
     )
