@@ -152,7 +152,28 @@ class Twip(object):
     OMode.methods = ['GET', 'POST']
 
     def TMode(self, path):
-        return path
+        remote_url = self.url_fixer(path)
+        values = self.args_fixer(request.values)
+        headers = {k:v for k,v in request.headers if k in self.getTModeForwaredHeaders()}
+
+        if request.method == 'POST':
+            r = requests.post(remote_url, data=values)
+        elif request.method == 'GET':
+            r = requests.get(remote_url, params=values)
+
+        return r.text
+
+    TMode.methods = ['GET', 'POST']
+
+    def getTModeForwaredHeaders(self):
+        return [
+            'Host',
+            'User-Agent',
+            'Authorization',
+            'Content-Type',
+            'X-Forwarded-For',
+            'Expect',
+        ]
 
     def url_fixer(self, url):
         # determine if there's any version info
