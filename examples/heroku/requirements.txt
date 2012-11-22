@@ -1,6 +1,6 @@
 Flask==0.9
 Flask-OAuth==0.12
-Flask-Twip==0.0.3
+Flask-Twip==0.0.4
 Jinja2==2.6
 Werkzeug==0.8.3
 gunicorn==0.15.0
