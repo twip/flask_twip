@@ -8,3 +8,5 @@ httplib2==0.7.6
 oauth2==1.5.211
 requests==0.14.2
 wsgiref==0.1.2
+psycopg2==2.4.5
+SQLAlchemy==0.7.9
