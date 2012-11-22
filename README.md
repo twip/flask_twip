@@ -33,4 +33,7 @@ CGI is supported on most web hosting servers.
 
 Heroku is a widely used PaaS platform.
 
-Refer to <https://github.com/yegle/flask_twip/tree/master/examples/heroku>.
+ 1. Create a heroku project. Refer to Heroku's docs if you don't know how to.
+ 2. Add dev DB server to this project. Run `heroku addons:add heroku-postgresql:dev` in the root directory of your project
+ 3. Copy files in <https://github.com/yegle/flask_twip/tree/master/examples/heroku> to your project directory
+ 4. Push your project to heroku.
