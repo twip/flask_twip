@@ -7,8 +7,19 @@ A twitter API proxy extension for [Flask](http://flask.pocoo.org) microframework
 ## Know bugs
 
 1. Only supports Override mode (well, at least for now. Will add Transparent mode if I have the time)
-2. Only supports FileBackend as storage backend for OAuth access tokens (pull-requests are welcome!)
 
+## Features
+
+ 1. Support multiple platforms
+    1. CGI on virtual hosts
+    2. Heroku
+    3. Run as a `WSGI` server
+ 2. Support multiple mode
+    1. Override Mode: override OAuth signatures from clients
+    2. Transparent Mode: passing all HTTP paramters onto Twitter (still experimenting)
+ 3. Support multiple storage backend
+    1. `FileBackend`
+    2. `SQLBackend` (using `SQLAlchemy`)
 
 ## Using Flask-Twip
 
