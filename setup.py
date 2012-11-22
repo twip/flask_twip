@@ -17,7 +17,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Flask-Twip',
-    version='0.0.4',
+    version='0.0.5',
     url='https://github.com/yegle/flask_twip/',
     license='MPL',
     author='yegle',
