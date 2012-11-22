@@ -6,13 +6,16 @@ from __future__ import unicode_literals,\
 
 from flask import Flask
 from flask.ext.twip import Twip
-from flask.ext.twip.backend import FileBackend
+from flask.ext.twip.backend import SQLBackend
 from flask.ext.twip.environment import HerokuEnvironment
 import os
 
 app = Flask(__name__)
 app.config.from_object('settings')
-be = FileBackend(folder='/tmp/twip')
+be = SQLBackend(
+    db=os.environ.get('HEROKU_POSTGRESQL_NAVY_URL'),
+    table='twip_tokens'
+)
 twip = Twip(app, backend=be, environment=HerokuEnvironment)
 
 if __name__ == '__main__':
