@@ -32,6 +32,8 @@ setup(
         'Flask >= 0.9',
         'requests >= 0.14.2',
         'Flask-OAuth >= 0.12',
+        'SQLAlchemy >= 0.7.9',
+        'requests >= 0.14.2',
     ],
     classifiers=[
         'Environment :: Web Environment',
