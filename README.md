@@ -37,3 +37,12 @@ Heroku is a widely used PaaS platform.
  2. Add dev DB server to this project. Run `heroku addons:add heroku-postgresql:dev` in the root directory of your project
  3. Copy files in <https://github.com/yegle/flask_twip/tree/master/examples/heroku> to your project directory
  4. Push your project to heroku.
+
+In order for the dev DB server to work, you need an extra step to init the database
+
+ 1. Run `herku run python`
+ 2. Type the following Python code
+        be = SQLBackend(db=os.environ.get('HEROKU_POSTGRESQL_NAVY_URL'),table='twip_tokens')
+        be.init_db()
+
+You only need to init your database the first time you setup `Flask-Twip`
