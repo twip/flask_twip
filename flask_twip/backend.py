@@ -85,12 +85,11 @@ class SQLBackend(Backend):
 
     def save(self, user, key, string):
         try:
-            token = self.model(user, key, string)
-            self.session.add(token)
             self.session.query(self.model).filter(
                 self.model.user == user,
-                self.model.key != key
             ).delete()
+            token = self.model(user, key, string)
+            self.session.add(token)
             self.session.commit()
         except Exception as e:
             raise TokenSavingError(str(e))
