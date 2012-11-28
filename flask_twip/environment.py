@@ -6,32 +6,50 @@ from __future__ import unicode_literals,\
 
 from flask import request
 
+
 class Environment(object):
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
-        environ['twip_base_url'] = '%s://%s' % (environ['twip_scheme'], environ['HTTP_HOST'])
+        environ['twip_base_url'] = '%s://%s' % (
+            environ['twip_scheme'], environ['HTTP_HOST']
+        )
         return self.app(environ, start_response)
+
 
 class CGIEnvironment(Environment):
 
     def __call__(self, environ, start_response):
-        environ['twip_scheme'] = 'https' if ('HTTPS' in environ and environ.get('HTTPS') == 'on') else 'http'
+        if 'HTTPS' in environ and environ.get('HTTPS') == 'on':
+            environ['twip_scheme'] = 'https'
+        else:
+            environ['twip_scheme'] = 'http'
         pathInfo = environ.get('PATH_INFO')
         scriptURL = environ.get('SCRIPT_URL')
         if scriptURL.endswith(pathInfo):
-            environ['twip_base_url'] = '%s://%s%s' % (environ['twip_scheme'], environ['HTTP_HOST'], scriptURL[:-len(pathInfo)])
+            environ['twip_base_url'] = '%s://%s%s' % (
+                environ['twip_scheme'],
+                environ['HTTP_HOST'],
+                scriptURL[:-len(pathInfo)]
+            )
         else:
-            environ['twip_base_url'] = '%s://%s' % (environ['twip_scheme'], self['HTTP_HOST'])
+            environ['twip_base_url'] = '%s://%s' % (
+                environ['twip_scheme'], self['HTTP_HOST']
+            )
 
         return self.app(environ, start_response)
+
 
 class WSGIEnvironment(Environment):
 
     def __call__(self, environ, start_response):
-        environ['twip_scheme'] = 'https' if ('wsgi.url_scheme' in environ and environ.get('wsgi.url_scheme') == 'https') else 'http'
+        if environ.get('wsgi.url_scheme', None) == 'https':
+            environ['twip_scheme'] = 'https'
+        else:
+            environ['twip_scheme'] = 'http'
         return super(WSGIEnvironment, self).__call__(environ, start_response)
+
 
 class HerokuEnvironment(WSGIEnvironment):
     def __call__(self, environ, start_response):

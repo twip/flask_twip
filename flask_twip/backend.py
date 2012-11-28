@@ -96,7 +96,8 @@ class SQLBackend(Backend):
 
     def load(self, user, key):
         try:
-            token = self.session.query(self.model).filter_by(user=user, key=key).first()
+            token = self.session.query(self.model).\
+                filter_by(user=user, key=key).first()
             return token.string
         except Exception as e:
             raise TokenLoadingError(str(e))

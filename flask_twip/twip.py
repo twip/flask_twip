@@ -154,7 +154,10 @@ class Twip(object):
     def TMode(self, path):
         remote_url = self.url_fixer(path)
         values = self.args_fixer(request.values)
-        headers = {k:v for k,v in request.headers if k in self.getTModeForwaredHeaders()}
+        headers = {
+            k: v for k, v in request.headers
+            if k in self.getTModeForwaredHeaders()
+        }
 
         if request.method == 'POST':
             r = requests.post(remote_url, data=values)
