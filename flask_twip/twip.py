@@ -61,7 +61,7 @@ class Twip(object):
                 request.environ['twip_base_url'],
                 os.path.dirname(
                     # FIXME: I'm not sure the best way to extract this info
-                    self.app.url_map._rules_by_endpoint['twip.OMode'][0].rule
+                    self.app.url_map._rules_by_endpoint['twip.override_mode'][0].rule
                 )
             )
             return self._o_base
@@ -75,15 +75,15 @@ class Twip(object):
                 request.environ['twip_base_url'],
                 os.path.dirname(
                     # FIXME:
-                    self.app.url_map._rules_by_endpoint['twip.TMode'][0].rule
+                    self.app.url_map._rules_by_endpoint['twip.transparent_mode'][0].rule
                 )
             )
             return self._t_base
 
     def getMapper(self):
         m = (
-            ('/o/<path:path>', self.OMode),
-            ('/t/<path:path>', self.TMode),
+            ('/o/<path:path>', self.override_mode),
+            ('/t/<path:path>', self.transparent_mode),
             ('/o/', self.redirect),
             ('/t/', self.redirect),
             ('/', self.index),
@@ -112,10 +112,10 @@ class Twip(object):
             consumer_key=self.app.config.get('TWITTER_CONSUMER_KEY'),
             consumer_secret=self.app.config.get('TWITTER_CONSUMER_SECRET'),
         )
-        twitter.tokengetter(self.tokengetter)
+        twitter.token_getter(self.token_getter)
         return twitter
 
-    def tokengetter(self):
+    def token_getter(self):
         if self.token:
             return (
                 self.token['oauth_token'],
@@ -124,7 +124,7 @@ class Twip(object):
         else:
             return None
 
-    def OMode(self, path):
+    def override_mode(self, path):
         username, key = path.split('/')[:2]
         try:
             token = self.backend.load(username, key)
@@ -149,14 +149,14 @@ class Twip(object):
 
             return make_response((r.raw_data, r.status, r.headers))
 
-    OMode.methods = ['GET', 'POST']
+    override_mode.methods = ['GET', 'POST']
 
-    def TMode(self, path):
+    def transparent_mode(self, path):
         remote_url = self.url_fixer(path)
         values = self.args_fixer(request.values)
         headers = {
             k: v for k, v in request.headers
-            if k in self.getTModeForwaredHeaders()
+            if k in self.get_tmode_forwared_headers()
         }
 
         if request.method == 'POST':
@@ -166,9 +166,9 @@ class Twip(object):
 
         return r.text
 
-    TMode.methods = ['GET', 'POST']
+    transparent_mode.methods = ['GET', 'POST']
 
-    def getTModeForwaredHeaders(self):
+    def get_tmode_forwarded_headers(self):
         return [
             'Host',
             'User-Agent',
