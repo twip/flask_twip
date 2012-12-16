@@ -8,6 +8,12 @@ A twitter API proxy extension for [Flask](http://flask.pocoo.org) microframework
 
 1. Only supports Override mode (well, at least for now. Will add Transparent mode if I have the time)
 
+## TODO
+
+1. Test transparent mode with [Hotot](http://www.hotot.org)
+2. Convert this README into reStructuredText and display it on PyPI
+3. Documentation about customized deployment
+
 ## Features
 
  1. Support multiple platforms
