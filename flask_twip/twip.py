@@ -18,6 +18,7 @@ import os
 import re
 
 from .backend import TokenLoadingError, TokenSavingError
+from .utils import allow_post
 from urllib import urlencode
 
 
@@ -124,6 +125,7 @@ class Twip(object):
         else:
             return None
 
+    @allow_post
     def override_mode(self, path):
         username, key = path.split('/')[:2]
         try:
@@ -149,8 +151,7 @@ class Twip(object):
 
             return make_response((r.raw_data, r.status, r.headers))
 
-    override_mode.methods = ['GET', 'POST']
-
+    @allow_post
     def transparent_mode(self, path):
         remote_url = self.url_fixer(path)
         values = self.args_fixer(request.values)
@@ -165,8 +166,6 @@ class Twip(object):
             r = requests.get(remote_url, params=values)
 
         return r.text
-
-    transparent_mode.methods = ['GET', 'POST']
 
     def get_tmode_forwarded_headers(self):
         return [
