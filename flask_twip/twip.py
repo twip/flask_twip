@@ -112,7 +112,7 @@ class Twip(object):
             consumer_key=self.app.config.get('TWITTER_CONSUMER_KEY'),
             consumer_secret=self.app.config.get('TWITTER_CONSUMER_SECRET'),
         )
-        twitter.token_getter(self.token_getter)
+        twitter.tokengetter(self.token_getter)
         return twitter
 
     def token_getter(self):
