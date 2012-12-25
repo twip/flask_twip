@@ -16,4 +16,5 @@ if __name__ == '__main__':
     twip = Twip(app, backend=be, environment=WSGIEnvironment)
     app.run(
         debug=True,
+        host='0.0.0.0',
     )
