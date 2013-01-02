@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 0.0.6 (in development)
+
+Feature update
+
+* Mod: add log handler in CGI example code
+
 ## 0.0.5
 
 Bugfix update

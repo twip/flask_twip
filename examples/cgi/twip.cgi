@@ -22,8 +22,9 @@ if __name__ == '__main__':
         app.config.from_object('settings')
         be = FileBackend(folder='/home/yegle/cgi-bin/tokens')
         twip = Twip(app, backend=be, url='/', environment=CGIEnvironment)
-
-        CGIHandler().run(app)
+        handler = CGIHandler()
+        handler.get_stderr = lambda: open('twip.log', 'a')
+        handler.run(app)
     except Exception as e:
         print("Content-type: text/html")
         print("")
