@@ -74,3 +74,7 @@ You only need to init your database the first time you setup `Flask-Twip`
 ## Tips
 
 Gratuity greatly appreciated but not necessary. <https://www.gittip.com/yegle/>
+
+---
+
+Project is a member of the [OSS Manifesto](http://ossmanifesto.org/)
