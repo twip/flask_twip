@@ -29,6 +29,8 @@ pull requests be accepted:
 We welcome all kind of bug report. Please submit your report in github's
 issue page.
 
+You should use English to describe your problem.
+
 Please understand that the issue tracker is not a place asking for
 deployment instructions and hosting recommendation.
 
@@ -38,6 +40,8 @@ instructions we gave, feel free to submit an issue for them
 ## Feature Request
 
 Please submit your feature request in github's issue page.
+
+You should use English to describe your problem.
 
 We will consider all feature requests, but we may not implement all of
 them.
