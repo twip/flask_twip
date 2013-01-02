@@ -67,6 +67,10 @@ be.init_db()
 
 You only need to init your database the first time you setup `Flask-Twip`
 
+## Contributors
+
+* [yegle](https://github.com/yegle)
+
 ## Tips
 
 Gratuity greatly appreciated but not necessary. <https://www.gittip.com/yegle/>
