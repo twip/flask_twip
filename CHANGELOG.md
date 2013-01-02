@@ -5,7 +5,7 @@ CHANGELOG
 
 Feature update
 
-* Mod: add log handler in CGI example code
+* Add: log handler in CGI example code
 
 ## 0.0.5
 
