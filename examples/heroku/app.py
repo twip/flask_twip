@@ -13,7 +13,7 @@ import os
 app = Flask(__name__)
 app.config.from_object('settings')
 be = SQLBackend(
-    db=os.environ.get('HEROKU_POSTGRESQL_NAVY_URL'),
+    db=os.environ.get('DATABASE_URL'),
     table='twip_tokens'
 )
 twip = Twip(app, backend=be, environment=HerokuEnvironment)

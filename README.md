@@ -61,7 +61,7 @@ In order for the dev DB server to work, you need an extra step to init the datab
  2. Type the following Python code
 
 ```python
-be = SQLBackend(db=os.environ.get('HEROKU_POSTGRESQL_NAVY_URL'),table='twip_tokens')
+from app import be
 be.init_db()
 ```
 
