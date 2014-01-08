@@ -14,6 +14,7 @@ Twitter API proxy feature into your website.
 """
 
 from setuptools import setup, find_packages
+from pip.req import parse_requirements
 
 setup(
     name='Flask-Twip',
@@ -29,12 +30,7 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=[
-        'Flask >= 0.9',
-        'requests >= 0.14.2',
-        'Flask-OAuth >= 0.12',
-        'SQLAlchemy >= 0.7.9',
-        'requests >= 0.14.2',
-    ],
+        str(x.req) for x in parse_requirements('requirements.txt')],
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

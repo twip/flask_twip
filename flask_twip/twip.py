@@ -9,7 +9,7 @@ from flask import request as req
 from flask import redirect, url_for, Blueprint,\
     session, request, render_template, abort, \
     make_response
-from flask.ext.oauth import OAuth, OAuthException
+from flask.ext.oauthlib.client import OAuth, OAuthException
 
 import random
 import string
@@ -19,7 +19,10 @@ import re
 
 from .backend import TokenLoadingError, TokenSavingError
 from .utils import allow_post
-from urllib import urlencode
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 
 
 class Twip(object):

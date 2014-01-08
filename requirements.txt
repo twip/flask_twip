@@ -1,0 +1,5 @@
+Flask>=0.10
+requests>=0.14.2
+Flask-OAuthlib>=0.4.2
+SQLAlchemy>=0.7.9
+requests>=0.14.2
